@@ -6,6 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-family-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -116,8 +118,20 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  /* Apply monospace font to all text elements */
+  h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select, label {
+    font-family: inherit;
+  }
+
+  /* Code elements also use monospace */
+  code, pre, kbd, samp {
+    font-family: inherit;
   }
 }
 
@@ -128,7 +142,7 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -136,23 +150,58 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: oklch(0.556 0 0 / 0.3);
-  border-radius: 3px;
-  transition: background 0.2s ease;
+  background: oklch(0.556 0 0 / 0.25);
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: oklch(0.556 0 0 / 0.5);
+  width: 10px;
 }
 
 .dark .custom-scrollbar {
-  scrollbar-color: oklch(0.985 0 0 / 0.3) transparent;
+  scrollbar-color: oklch(0.985 0 0 / 0.25) transparent;
 }
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: oklch(0.985 0 0 / 0.3);
+  background: oklch(0.985 0 0 / 0.25);
 }
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: oklch(0.985 0 0 / 0.5);
+}
+
+/* Loading animations */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes progress-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+  background-size: 200% 100%;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }

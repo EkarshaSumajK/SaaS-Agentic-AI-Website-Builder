@@ -1,4 +1,4 @@
-import {CopyIcon, CheckIcon, FileIcon} from "lucide-react"
+import {CopyIcon, CheckIcon, FileIcon, FolderIcon} from "lucide-react"
 import {useState,useMemo,useCallback,Fragment} from "react"
 
 import {Button} from "@/components/ui/button"
@@ -59,119 +59,102 @@ export const FileExplorer = ({files}:FileExplorerProps) => {
     }, [])
 
    return(
-    <div className="h-full relative">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50/20 via-gray-50/10 to-zinc-50/20 dark:from-slate-950/10 dark:via-gray-950/5 dark:to-zinc-950/10" />
-        
-        <div className="relative h-full">
-            <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel defaultSize={30} minSize={30} className="relative">
-                    {/* Tree view background */}
-                    <div className="absolute inset-0 bg-card/50 backdrop-blur-sm border-r border-border/50" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-purple-500/5" />
-                    
-                    <div className="relative h-full">
-                        <TreeView value={selectedFiles} data={treeData} onSelect={handleFileSelect} />
-                    </div>
-                </ResizablePanel>
-                
-                <ResizableHandle 
-                    withHandle 
-                    className="relative group hover:bg-gradient-to-b hover:from-blue-500/20 hover:to-purple-500/20 transition-all duration-300"
-                />
-                
-                <ResizablePanel defaultSize={70} minSize={50} className="relative">
-                    {/* Code view background */}
-                    <div className="absolute inset-0 bg-card/30 backdrop-blur-sm" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-slate-500/5 via-transparent to-gray-500/5" />
-                    
-                    {selectedFiles && files[selectedFiles] ? (
-                        <div className="flex flex-col w-full h-full relative">
-                            {/* Enhanced Header */}
-                            <div className="relative border-b border-border/50 bg-card/50 backdrop-blur-sm px-4 py-3 flex justify-between items-center gap-x-3">
-                                <div className="absolute inset-0 bg-gradient-to-r from-slate-500/5 via-gray-500/5 to-transparent" />
-                                
-                                <div className="relative flex-1 min-w-0">
-                                    <Breadcrumb>
-                                        <BreadcrumbList>
-                                            {getBreadcrumbItems(selectedFiles).map((item) => (
-                                                <Fragment key={item.path}>
-                                                    <BreadcrumbItem>
-                                                        {item.isLast ? (
-                                                            <div className="flex items-center gap-2">
-                                                                <FileIcon className="w-4 h-4 text-blue-500" />
-                                                                <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                                                    {item.name}
-                                                                </span>
-                                                            </div>
-                                                        ) : (
-                                                            <BreadcrumbLink 
-                                                                className="text-sm text-muted-foreground hover:text-blue-600 cursor-pointer transition-colors duration-200 flex items-center gap-1"
-                                                                onClick={() => handleFileSelect(item.path)}
-                                                            >
+    <div className="h-full w-full absolute inset-0 bg-black flex">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+            <ResizablePanel defaultSize={28} minSize={20} className="h-full overflow-hidden">
+                {/* Tree view - matching home page style */}
+                <div className="h-full bg-[rgba(15,15,20,0.55)] backdrop-blur-md border-r border-white/10 overflow-auto custom-scrollbar">
+                    <TreeView value={selectedFiles} data={treeData} onSelect={handleFileSelect} />
+                </div>
+            </ResizablePanel>
+            
+            <ResizableHandle 
+                withHandle 
+                className="bg-white/5 hover:bg-[#1f3dbc]/20 transition-all duration-300 data-[resize-handle-active]:bg-[#1f3dbc]/30"
+            />
+            
+            <ResizablePanel defaultSize={72} minSize={50} className="h-full overflow-hidden">
+                {/* Code view area */}
+                <div className="h-full w-full bg-[rgba(8,8,10,0.9)] flex flex-col">
+                {selectedFiles && files[selectedFiles] ? (
+                    <>
+                        {/* Header - matching home page style */}
+                        <div className="flex-shrink-0 border-b border-white/10 bg-[rgba(15,15,20,0.55)] backdrop-blur-md px-2 py-1.5 flex justify-between items-center gap-x-2">
+                            <div className="flex-1 min-w-0">
+                                <Breadcrumb>
+                                    <BreadcrumbList>
+                                        {getBreadcrumbItems(selectedFiles).map((item) => (
+                                            <Fragment key={item.path}>
+                                                <BreadcrumbItem>
+                                                    {item.isLast ? (
+                                                        <div className="flex items-center gap-1">
+                                                            <FileIcon className="w-3 h-3 text-[#1f3dbc]" />
+                                                            <span className="text-xs font-medium text-white">
                                                                 {item.name}
-                                                            </BreadcrumbLink>
-                                                        )}
-                                                    </BreadcrumbItem>
-                                                    {!item.isLast && <BreadcrumbSeparator className="text-muted-foreground/50" />}
-                                                </Fragment>
-                                            ))}
-                                        </BreadcrumbList>
-                                    </Breadcrumb>
-                                </div>
-                                
-                                <div className="relative">
-                                    <Hint text={copied ? "Copied!" : "Copy code to clipboard"} side="bottom">
-                                        <Button 
-                                            variant="outline" 
-                                            size="icon" 
-                                            className={`
-                                                relative group border-border/50 bg-card/80 backdrop-blur-sm
-                                                hover:bg-gradient-to-r hover:from-emerald-500/10 hover:to-teal-500/10
-                                                hover:border-emerald-500/30 transition-all duration-300 hover:scale-105
-                                                ${copied ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/50' : ''}
-                                            `}
-                                            onClick={handleCopyCode} 
-                                            disabled={false}
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 to-teal-500/0 group-hover:from-emerald-500/5 group-hover:to-teal-500/5 rounded-md transition-all duration-300" />
-                                            {copied ? (
-                                                <CheckIcon className="w-4 h-4 text-emerald-600" />
-                                            ) : (
-                                                <CopyIcon className="w-4 h-4 transition-colors group-hover:text-emerald-600" />
-                                            )}
-                                        </Button>
-                                    </Hint>
-                                </div>
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <BreadcrumbLink 
+                                                            className="text-xs text-gray-500 hover:text-white cursor-pointer transition-colors duration-200 flex items-center gap-0.5"
+                                                            onClick={() => handleFileSelect(item.path)}
+                                                        >
+                                                            <FolderIcon className="w-2.5 h-2.5" />
+                                                            {item.name}
+                                                        </BreadcrumbLink>
+                                                    )}
+                                                </BreadcrumbItem>
+                                                {!item.isLast && <BreadcrumbSeparator className="text-gray-600" />}
+                                            </Fragment>
+                                        ))}
+                                    </BreadcrumbList>
+                                </Breadcrumb>
                             </div>
                             
-                            {/* Enhanced code view container */}
-                            <div className="flex-1 overflow-auto relative">
-                                <div className="absolute inset-0 bg-gradient-to-br from-slate-50/10 via-transparent to-gray-50/10 dark:from-slate-950/5 dark:to-gray-950/5" />
-                                <div className="relative">
-                                    <CodeView code={files[selectedFiles]} language={getLanguageExtension(selectedFiles)} />
-                                </div>
+                            <Hint text={copied ? "Copied!" : "Copy code"} side="bottom">
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className={`
+                                        size-6 rounded-md border border-white/10 bg-[rgba(31,31,31,0.62)]
+                                        hover:bg-white/5 hover:border-white/20 transition-all duration-200
+                                        text-gray-400 hover:text-white
+                                        ${copied ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : ''}
+                                    `}
+                                    onClick={handleCopyCode}
+                                >
+                                    {copied ? (
+                                        <CheckIcon className="w-3 h-3" />
+                                    ) : (
+                                        <CopyIcon className="w-3 h-3" />
+                                    )}
+                                </Button>
+                            </Hint>
+                        </div>
+                        
+                        {/* Code view container */}
+                        <div className="flex-1 overflow-auto">
+                            <CodeView code={files[selectedFiles]} language={getLanguageExtension(selectedFiles)} />
+                        </div>
+                    </>
+                ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center p-6">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-[#1f3dbc]/10 rounded-xl blur-lg"></div>
+                            <div className="relative w-12 h-12 bg-[rgba(15,15,20,0.55)] backdrop-blur-md rounded-xl flex items-center justify-center mb-3 border border-white/10 shadow-lg">
+                                <FileIcon className="w-6 h-6 text-gray-500" />
                             </div>
                         </div>
-                    ) : (
-                        <div className="flex flex-col h-full items-center justify-center p-8 relative">
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-gradient-to-r from-slate-500/20 via-gray-500/20 to-zinc-500/20 rounded-full blur-xl animate-pulse" />
-                                <div className="relative w-16 h-16 bg-gradient-to-r from-slate-600 to-gray-600 rounded-full flex items-center justify-center mb-4">
-                                    <FileIcon className="w-8 h-8 text-white" />
-                                </div>
-                            </div>
-                            <h3 className="text-lg font-semibold bg-gradient-to-r from-slate-600 to-gray-600 bg-clip-text text-transparent mb-2">
-                                No File Selected
-                            </h3>
-                            <p className="text-sm text-muted-foreground text-center max-w-sm">
-                                Choose a file from the tree view to see its contents here.
-                            </p>
-                        </div>
-                    )}
-                </ResizablePanel>
-            </ResizablePanelGroup>
-        </div>
+                        <h3 className="text-sm font-semibold text-white mb-1 tracking-tight">
+                            No File Selected
+                        </h3>
+                        <p className="text-xs text-gray-500 text-center max-w-xs leading-relaxed">
+                            Choose a file from the tree view to see its contents here.
+                        </p>
+                    </div>
+                )}
+                </div>
+            </ResizablePanel>
+        </ResizablePanelGroup>
     </div>
    )
 }

@@ -3,12 +3,14 @@ import { createAgent,createNetwork,createState,createTool,gemini, Message, Tool 
 import {Sandbox} from "@e2b/code-interpreter";
 import { getSandboxUrl, lastAssistantMessageContent } from "./utils";
 import { z } from "zod";
-import { PROMPT, RESPONSE_PROMPT, FRAGMENT_TITLE_PROMPT } from "@/prompt";
+import { PROMPT, RESPONSE_PROMPT, FRAGMENT_TITLE_PROMPT, parseStatusTags, extractTaskSummary, ProgressStatus } from "@/prompt";
 import { prisma } from "@/lib/db";
 
 interface AgentState{
   summary:string
   files: {[path:string]:string}
+  progress: ProgressStatus[]
+  currentStatus: string
 }
 
 export const codeAgent = inngest.createFunction(
@@ -46,6 +48,8 @@ export const codeAgent = inngest.createFunction(
       {
         summary:"",
         files:{},
+        progress: [],
+        currentStatus: "initializing",
       },
       {
         messages:previousMessages,
@@ -153,8 +157,25 @@ export const codeAgent = inngest.createFunction(
             try {
               const lastAssistantMessage = await lastAssistantMessageContent(result)
               if(lastAssistantMessage && network){
-                if(lastAssistantMessage.includes("<task_summary>")){
+                // Parse and store progress status updates
+                const newStatuses = parseStatusTags(lastAssistantMessage)
+                if(newStatuses.length > 0){
+                  network.state.data.progress = [
+                    ...network.state.data.progress,
+                    ...newStatuses
+                  ]
+                  // Update current status to the latest one
+                  const latestStatus = newStatuses[newStatuses.length - 1]
+                  network.state.data.currentStatus = `${latestStatus.type}: ${latestStatus.message}`
+                  console.log(`[Lumina AI] Status: ${latestStatus.type} - ${latestStatus.message}`)
+                }
+                
+                // Check for task summary (completion)
+                const taskSummary = extractTaskSummary(lastAssistantMessage)
+                if(taskSummary){
                   network.state.data.summary = lastAssistantMessage
+                  network.state.data.currentStatus = "complete"
+                  console.log(`[Lumina AI] Task completed with summary`)
                 }
               }
               return result
@@ -248,6 +269,12 @@ export const codeAgent = inngest.createFunction(
           }
         })
       })
-      return { url:sandboxUrl, files:result.state.data.files ,summary:network.state.data.summary};
+      return { 
+        url: sandboxUrl, 
+        files: result.state.data.files,
+        summary: network.state.data.summary,
+        progress: result.state.data.progress,
+        currentStatus: result.state.data.currentStatus,
+      };
   },
 );

@@ -1,165 +1,145 @@
 "use client"
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
-// import { useTRPC } from "@/trpc/client"
 import { Suspense, useState } from "react"
 import MessageContainers from "../components/message-containers"
 import { Fragment } from "@/generated/prisma"        
 import { ProjectHeader } from "../components/project-header"
 import { FragmentWeb } from "../components/fragment-web"
-import {Tabs,TabsContent,TabsList,TabsTrigger} from "@/components/ui/tabs"
-import { CodeIcon,  EyeIcon } from "lucide-react"
-// import { Button } from "@/components/ui/button"
-// import Link from "next/link"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CodeIcon, EyeIcon, Loader2Icon } from "lucide-react"
 import { FileExplorer } from "./code-view/file-explorer"
 
-type FileCollection = {[path:string]:string}
+type FileCollection = { [path: string]: string }
 
-interface Props{
-    projectID:string
+interface Props {
+    projectID: string
 }
 
-// Loading component with gradient styling
 const LoadingCard = ({ children }: { children: React.ReactNode }) => (
-    <div className="flex items-center justify-center p-8">
-        <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-lg blur animate-pulse" />
-            <div className="relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-lg px-6 py-4">
-                <div className="text-sm text-muted-foreground flex items-center gap-2">
-                    <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse" />
-                    {children}
-                </div>
+    <div className="flex items-center justify-center p-4">
+        <div className="bg-[rgba(15,15,20,0.55)] backdrop-blur-md border border-white/10 rounded-lg px-4 py-2.5">
+            <div className="text-xs text-gray-400 flex items-center gap-2">
+                <Loader2Icon className="w-3 h-3 text-[#1f3dbc] animate-spin" />
+                <span>{children}</span>
             </div>
         </div>
     </div>
 )
 
-export const ProjectViews = ({projectID}:Props) => {
-    // const trpc = useTRPC()
-    // const {data:project} = useSuspenseQuery(trpc.projects.getOne.queryOptions({
-    //     id:projectID,
-    // }))
-    // const {data:messages} = useSuspenseQuery(trpc.messages.getMany.queryOptions({
-    //     projectId:projectID,
-    // }))
-    const [activeFragment,setActiveFragment] = useState<Fragment | null>(null)
-    const [activeTab,setActiveTab] = useState<"preview" | "code">("preview")
-    
-    return( 
-        <div className="h-screen relative">
-            {/* Background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-purple-50/20 to-pink-50/30 dark:from-blue-950/20 dark:via-purple-950/10 dark:to-pink-950/20" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.1),transparent_70%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.05),transparent_70%)]" />
-            
-            <div className="relative h-full">
-                <ResizablePanelGroup direction="horizontal">
-                    <ResizablePanel defaultSize={35} minSize={25} className="flex flex-col min-h-0">
-                        <Suspense fallback={<LoadingCard>Loading Project...</LoadingCard>}>
-                            <ProjectHeader projectID={projectID} />
-                        </Suspense>
-                        <Suspense fallback={<LoadingCard>Loading Messages...</LoadingCard>}>
-                            <MessageContainers projectID={projectID} activeFragment={activeFragment} setActiveFragment={setActiveFragment} />
-                        </Suspense>
-                    </ResizablePanel>
-                    
-                    <ResizableHandle 
-                        withHandle
-                        className="relative group hover:bg-gradient-to-b hover:from-blue-500/20 hover:to-purple-500/20 transition-all duration-300"
-                    />
-                    
-                    <ResizablePanel defaultSize={65} minSize={50} className="flex flex-col min-h-0">
-                        <Tabs className="h-full gap-y-0 flex flex-col" defaultValue="preview" value={activeTab} onValueChange={(value)=>setActiveTab(value as "preview" | "code")}>
-                            {/* Enhanced Tab Header */}
-                            <div className="relative w-full flex items-center p-3 border-b border-border/50 gap-x-3 bg-card/50 backdrop-blur-sm">
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5" />
-                                
-                                <div className="relative z-10">
-                                    <TabsList className="h-9 p-1 bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm">
-                                        <TabsTrigger 
-                                            value="preview" 
-                                            className="relative group rounded-md transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-lg"
-                                        >
-                                            <EyeIcon className="w-4 h-4 mr-2 transition-transform group-hover:scale-110" />
-                                            <span className="text-sm font-medium">Preview</span>
-                                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-blue-500/10 group-hover:via-purple-500/10 group-hover:to-pink-500/10 rounded-md transition-all duration-300" />
-                                        </TabsTrigger>
-                                        <TabsTrigger 
-                                            value="code" 
-                                            className="relative group rounded-md transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-lg"
-                                        >
-                                            <CodeIcon className="w-4 h-4 mr-2 transition-transform group-hover:scale-110" />
-                                            <span className="text-sm font-medium">Code</span>
-                                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-blue-500/10 group-hover:via-purple-500/10 group-hover:to-pink-500/10 rounded-md transition-all duration-300" />
-                                        </TabsTrigger>
-                                    </TabsList>
+export const ProjectViews = ({ projectID }: Props) => {
+    const [activeFragment, setActiveFragment] = useState<Fragment | null>(null)
+    const [activeTab, setActiveTab] = useState<"preview" | "code">("preview")
+
+    return (
+        <div className="h-screen w-screen bg-black overflow-hidden">
+            {/* Background */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#1f3dbc]/5 via-transparent to-transparent" />
+            </div>
+
+            {/* Main content */}
+            <div className="relative h-full w-full p-4">
+                <div className="h-full w-full rounded-2xl bg-gradient-to-br from-white/5 via-white/[0.02] to-black/20 p-[1px] overflow-hidden">
+                    <div className="h-full w-full bg-[rgba(10,10,12,0.75)] backdrop-blur-xl rounded-2xl overflow-hidden">
+                        <ResizablePanelGroup direction="horizontal" style={{ height: '100%' }}>
+                            {/* Left Panel - Chat */}
+                            <ResizablePanel defaultSize={35} minSize={25}>
+                                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                    <div className="flex-shrink-0">
+                                        <Suspense fallback={<LoadingCard>Loading Project...</LoadingCard>}>
+                                            <ProjectHeader projectID={projectID} />
+                                        </Suspense>
+                                    </div>
+                                    <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+                                        <Suspense fallback={<LoadingCard>Loading Messages...</LoadingCard>}>
+                                            <MessageContainers 
+                                                projectID={projectID} 
+                                                activeFragment={activeFragment} 
+                                                setActiveFragment={setActiveFragment} 
+                                            />
+                                        </Suspense>
+                                    </div>
                                 </div>
-                                
-                                {/* <div className="ml-auto flex items-center gap-x-2 relative z-10">
-                                    <Button asChild size="sm" className="relative group bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                        <Link href={"/pricing"} className="flex items-center gap-2">
-                                            <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-md blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                            <CrownIcon className="w-4 h-4 transition-transform group-hover:rotate-12" />
-                                            <span className="font-medium">Upgrade</span>
-                                        </Link>
-                                    </Button>
-                                </div> */}
-                            </div>
-                            
-                            {/* Tab Content with enhanced styling */}
-                            <TabsContent value="preview" className="flex-1 m-0 relative">
-                                {!!activeFragment ? (
-                                    <div className="h-full relative">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-transparent to-purple-50/20 dark:from-blue-950/10 dark:to-purple-950/10" />
-                                        <div className="relative h-full">
-                                            <FragmentWeb data={activeFragment} />
+                            </ResizablePanel>
+
+                            <ResizableHandle
+                                withHandle
+                                className="bg-white/5 hover:bg-[#1f3dbc]/20 transition-all duration-300"
+                            />
+
+                            {/* Right Panel - Preview/Code */}
+                            <ResizablePanel defaultSize={65} minSize={50}>
+                                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                    <Tabs 
+                                        value={activeTab} 
+                                        onValueChange={(v) => setActiveTab(v as "preview" | "code")}
+                                        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+                                    >
+                                        {/* Tab Header */}
+                                        <div className="flex-shrink-0 flex items-center p-2 border-b border-white/10 bg-[rgba(15,15,20,0.55)]">
+                                            <TabsList className="h-7 p-0.5 bg-[rgba(15,15,20,0.55)] border border-white/10 rounded-lg">
+                                                <TabsTrigger
+                                                    value="preview"
+                                                    className="rounded-md px-2.5 py-1 text-gray-400 data-[state=active]:bg-[#f0f2ff] data-[state=active]:text-black"
+                                                >
+                                                    <EyeIcon className="w-3 h-3 mr-1.5" />
+                                                    <span className="text-xs font-medium">Preview</span>
+                                                </TabsTrigger>
+                                                <TabsTrigger
+                                                    value="code"
+                                                    className="rounded-md px-2.5 py-1 text-gray-400 data-[state=active]:bg-[#f0f2ff] data-[state=active]:text-black"
+                                                >
+                                                    <CodeIcon className="w-3 h-3 mr-1.5" />
+                                                    <span className="text-xs font-medium">Code</span>
+                                                </TabsTrigger>
+                                            </TabsList>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col h-full items-center justify-center p-8">
-                                        <div className="relative">
-                                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-xl animate-pulse" />
-                                            <div className="relative w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-4">
-                                                <EyeIcon className="w-8 h-8 text-white" />
+
+                                        {/* Tab Content */}
+                                        <TabsContent value="preview" style={{ flex: 1, minHeight: 0, margin: 0 }}>
+                                            <div style={{ height: '100%', width: '100%' }}>
+                                                {activeFragment ? (
+                                                    <FragmentWeb data={activeFragment} />
+                                                ) : (
+                                                    <div className="h-full flex flex-col items-center justify-center p-6 bg-[rgba(5,5,8,0.5)]">
+                                                        <div className="w-12 h-12 bg-[rgba(15,15,20,0.55)] rounded-xl flex items-center justify-center mb-4 border border-white/10">
+                                                            <EyeIcon className="w-6 h-6 text-gray-500" />
+                                                        </div>
+                                                        <h3 className="text-sm font-semibold text-white mb-1.5">No Preview Available</h3>
+                                                        <p className="text-xs text-gray-400 text-center max-w-xs">
+                                                            Select a fragment from the conversation to see its live preview.
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
-                                        </div>
-                                        <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                                            No Preview Available
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground text-center max-w-sm">
-                                            Select a fragment from the conversation to see its live preview here.
-                                        </p>
-                                    </div>
-                                )}
-                            </TabsContent>
-                            
-                            <TabsContent value="code" className="flex-1 m-0 min-h-0 relative">
-                                {!!activeFragment ? (
-                                    <div className="h-full relative">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-slate-50/20 via-transparent to-gray-50/20 dark:from-slate-950/10 dark:to-gray-950/10" />
-                                        <div className="relative h-full">
-                                            <FileExplorer files={activeFragment.files as FileCollection} />
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col h-full items-center justify-center p-8">
-                                        <div className="relative">
-                                            <div className="absolute inset-0 bg-gradient-to-r from-slate-500/20 via-gray-500/20 to-zinc-500/20 rounded-full blur-xl animate-pulse" />
-                                            <div className="relative w-16 h-16 bg-gradient-to-r from-slate-600 to-gray-600 rounded-full flex items-center justify-center mb-4">
-                                                <CodeIcon className="w-8 h-8 text-white" />
+                                        </TabsContent>
+
+                                        <TabsContent value="code" style={{ flex: 1, minHeight: 0, margin: 0 }}>
+                                            <div style={{ height: '100%', width: '100%', position: 'relative' }}>
+                                                {activeFragment ? (
+                                                    <div style={{ position: 'absolute', inset: 0 }}>
+                                                        <FileExplorer files={activeFragment.files as FileCollection} />
+                                                    </div>
+                                                ) : (
+                                                    <div className="h-full flex flex-col items-center justify-center p-6 bg-[rgba(5,5,8,0.5)]">
+                                                        <div className="w-12 h-12 bg-[rgba(15,15,20,0.55)] rounded-xl flex items-center justify-center mb-4 border border-white/10">
+                                                            <CodeIcon className="w-6 h-6 text-gray-500" />
+                                                        </div>
+                                                        <h3 className="text-sm font-semibold text-white mb-1.5">No Code Available</h3>
+                                                        <p className="text-xs text-gray-400 text-center max-w-xs">
+                                                            Select a fragment from the conversation to explore its code.
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
-                                        </div>
-                                        <h3 className="text-lg font-semibold bg-gradient-to-r from-slate-600 to-gray-600 bg-clip-text text-transparent mb-2">
-                                            No Code Available
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground text-center max-w-sm">
-                                            Select a fragment from the conversation to explore its code structure.
-                                        </p>
-                                    </div>
-                                )}
-                            </TabsContent>
-                        </Tabs>
-                    </ResizablePanel>
-                </ResizablePanelGroup>
+                                        </TabsContent>
+                                    </Tabs>
+                                </div>
+                            </ResizablePanel>
+                        </ResizablePanelGroup>
+                    </div>
+                </div>
             </div>
         </div>
     )

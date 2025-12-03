@@ -1,46 +1,172 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
-import { ThemeToggle } from "@/components/ui/theme-toggle"
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
-import { Button } from "@/components/ui/button"
+import React, { useState, useEffect, useRef } from 'react';
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import Link from "next/link";
 
+const AnimatedNavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+  const defaultTextColor = 'text-gray-300';
+  const hoverTextColor = 'text-white';
+  const textSizeClass = 'text-sm';
 
-export const Navbar = () => {
-    return (
-        <nav className="p-4 bg-transparent fixed top-0 left-0 right-0 z-50 transition-all duration-200 border-b border-transparent">
-            <div className="max-w-5xl mx-auto w-full flex justify-between items-center">
-                <Link href="/" className="flex items-center gap-2">
-                    <Image src={process.env.NEXT_PUBLIC_AVATAR_URL || ""} alt="logo" width={32} height={32}  className="rounded-md"/>
-                    <span className="font-semibold text-lg">Maxc</span>
-                </Link>
-                <SignedOut>
-                    <div className="flex gap-2">
-                            <SignUpButton>
-                                <Button variant="outline" size="sm">
-                                    Sign Up
-                                </Button>
-                            </SignUpButton>
-                            <SignInButton>
-                                <Button size="sm">
-                                    Sign In
-                                </Button>
-                            </SignInButton>
-                            <ThemeToggle variant="dropdown" size="sm"/>
+  return (
+    <a href={href} className={`group relative inline-block overflow-hidden h-5 flex items-center ${textSizeClass}`}>
+      <div className="flex flex-col transition-transform duration-400 ease-out transform group-hover:-translate-y-1/2">
+        <span className={defaultTextColor}>{children}</span>
+        <span className={hoverTextColor}>{children}</span>
+      </div>
+    </a>
+  );
+};
 
-                    </div>
-                </SignedOut>
-                <SignedIn>
-                    <UserButton showName={true} appearance={{
-                        elements: {
-                            userButtonBox:"rounded-md!",
-                            userButtonAvatarBox:"rounded-md! size-8!",
-                            userButtonTrigger: "rounded-md!",
-                        }
-                    }} />
-                </SignedIn>
-            </div>
+export function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [headerShapeClass, setHeaderShapeClass] = useState('rounded-full');
+  const shapeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  useEffect(() => {
+    if (shapeTimeoutRef.current) {
+      clearTimeout(shapeTimeoutRef.current);
+    }
+
+    if (isOpen) {
+      setHeaderShapeClass('rounded-xl');
+    } else {
+      shapeTimeoutRef.current = setTimeout(() => {
+        setHeaderShapeClass('rounded-full');
+      }, 300);
+    }
+
+    return () => {
+      if (shapeTimeoutRef.current) {
+        clearTimeout(shapeTimeoutRef.current);
+      }
+    };
+  }, [isOpen]);
+
+  const logoElement = (
+    <Link href="/" className="flex items-center gap-2 cursor-pointer">
+      <img 
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA3Fm3ZqSqSdlph2paINM75OWLtKgBh5mM4w&s" 
+        alt="Lumina Logo" 
+        className="w-8 h-8 rounded-full object-cover"
+      />
+      <span className="text-gray-200 font-semibold text-sm tracking-tight">Lumina</span>
+    </Link>
+  );
+
+  const navLinksData = [
+    { label: 'Github', href: 'https://github.com/EkarshaSumajK/SaaS-Agentic-AI-Website-Builder' },
+    { label: 'Projects', href: '/projects' },
+    { label: 'About', href: '/about' },
+  ];
+
+  const loginButtonElement = (
+    <SignInButton>
+      <button className="px-4 py-2 sm:px-3 text-xs sm:text-sm border border-[#333] bg-[rgba(31,31,31,0.62)] text-gray-300 rounded-full hover:border-white/50 hover:text-white transition-colors duration-200 w-full sm:w-auto">
+        LogIn
+      </button>
+    </SignInButton>
+  );
+
+  const signupButtonElement = (
+    <SignUpButton>
+      <div className="relative group w-full sm:w-auto cursor-pointer">
+         <div className="absolute inset-0 -m-2 rounded-full
+                       hidden sm:block
+                       bg-gray-100
+                       opacity-40 filter blur-lg pointer-events-none
+                       transition-all duration-300 ease-out
+                       group-hover:opacity-60 group-hover:blur-xl group-hover:-m-3"></div>
+         <button className="relative z-10 px-4 py-2 sm:px-3 text-xs sm:text-sm font-semibold text-black bg-gradient-to-br from-gray-100 to-gray-300 rounded-full hover:from-gray-200 hover:to-gray-400 transition-all duration-200 w-full sm:w-auto">
+           Signup
+         </button>
+      </div>
+    </SignUpButton>
+  );
+
+  return (
+    <header className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-20
+                       flex flex-col items-center
+                       pl-6 pr-6 py-3 backdrop-blur-sm
+                       ${headerShapeClass}
+                       border border-[#333] bg-[#1f1f1f57]
+                       w-[calc(100%-2rem)] sm:w-auto
+                       transition-[border-radius] duration-0 ease-in-out`}>
+
+      <div className="flex items-center justify-between w-full gap-x-6 sm:gap-x-8">
+        <div className="flex items-center">
+           {logoElement}
+        </div>
+
+        <nav className="hidden sm:flex items-center space-x-4 sm:space-x-6 text-sm">
+          {navLinksData.map((link) => (
+            <AnimatedNavLink key={link.href} href={link.href}>
+              {link.label}
+            </AnimatedNavLink>
+          ))}
         </nav>
-    )
+
+        <div className="hidden sm:flex items-center gap-2 sm:gap-3">
+          <SignedOut>
+            {loginButtonElement}
+            {signupButtonElement}
+          </SignedOut>
+          <SignedIn>
+            <UserButton 
+              showName={true}
+              appearance={{
+                elements: {
+                  userButtonBox: "flex-row-reverse",
+                  userButtonAvatarBox: "w-8 h-8 order-first",
+                  userButtonOuterIdentifier: "text-gray-300 hover:text-white transition-colors ml-2 order-last"
+                }
+              }}
+            />
+          </SignedIn>
+        </div>
+
+        <button className="sm:hidden flex items-center justify-center w-8 h-8 text-gray-300 focus:outline-none" onClick={toggleMenu} aria-label={isOpen ? 'Close Menu' : 'Open Menu'}>
+          {isOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          )}
+        </button>
+      </div>
+
+      <div className={`sm:hidden flex flex-col items-center w-full transition-all ease-in-out duration-300 overflow-hidden
+                       ${isOpen ? 'max-h-[1000px] opacity-100 pt-4' : 'max-h-0 opacity-0 pt-0 pointer-events-none'}`}>
+        <nav className="flex flex-col items-center space-y-4 text-base w-full">
+          {navLinksData.map((link) => (
+            <a key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors w-full text-center">
+              {link.label}
+            </a>
+          ))}
+        </nav>
+        <div className="flex flex-col items-center space-y-4 mt-4 w-full">
+          <SignedOut>
+            {loginButtonElement}
+            {signupButtonElement}
+          </SignedOut>
+          <SignedIn>
+            <UserButton 
+              showName={true}
+              appearance={{
+                elements: {
+                  userButtonBox: "flex-row-reverse",
+                  userButtonAvatarBox: "w-8 h-8 order-first",
+                  userButtonOuterIdentifier: "text-gray-300 hover:text-white transition-colors ml-2 order-last"
+                }
+              }}
+            />
+          </SignedIn>
+        </div>
+      </div>
+    </header>
+  );
 }

@@ -5,7 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import {useTRPC} from "@/trpc/client"
 import {Button} from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ChevronDownIcon, SettingsIcon, HomeIcon, FolderIcon } from "lucide-react"
+import { ChevronDownIcon, SettingsIcon, HomeIcon, FolderIcon, ArrowLeftIcon, SparklesIcon } from "lucide-react"
 
 interface Props{
     projectID:string
@@ -19,102 +19,119 @@ export const ProjectHeader = ({projectID}:Props) => {
     
     
     return(
-        <header className="px-4 py-3 flex justify-between items-center border-b bg-card/80 backdrop-blur-md supports-[backdrop-filter]:bg-card/60 shadow-sm">
-            <div className="flex items-center gap-3">
+        <header className="px-3 py-2 flex justify-between items-center border-b border-white/10 bg-[rgba(15,15,20,0.55)] backdrop-blur-md">
+            <div className="flex items-center gap-2">
+                {/* Back Button */}
+                <Link href="/">
+                    <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="size-7 rounded-md border border-white/10 bg-[rgba(31,31,31,0.62)] hover:bg-white/5 hover:border-white/20 transition-all duration-200 text-gray-400 hover:text-white"
+                    >
+                        <ArrowLeftIcon className="w-3.5 h-3.5" />
+                    </Button>
+                </Link>
+
+                {/* Logo/Home Link - matching navbar style */}
+                <Link href="/" className="flex items-center gap-1.5 group">
+                    <img 
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA3Fm3ZqSqSdlph2paINM75OWLtKgBh5mM4w&s" 
+                        alt="Lumina Logo" 
+                        className="w-5 h-5 rounded-full object-cover ring-1 ring-white/10 group-hover:ring-white/20 transition-all"
+                    />
+                    <span className="text-gray-200 font-semibold text-xs tracking-tight group-hover:text-white transition-colors">
+                        Lumina
+                    </span>
+                </Link>
+
+                {/* Separator */}
+                <div className="h-5 w-px bg-white/10"></div>
+
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <div className="relative group">
-                            {/* Background glow */}
-                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            
-                            <Button 
-                                variant="ghost" 
-                                className="relative focus-visible:ring-0 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 dark:hover:from-blue-950/30 dark:hover:to-purple-950/30 transition-all duration-300 pl-3 pr-4 h-auto gap-4 group border border-transparent hover:border-border/50 rounded-xl backdrop-blur-sm"
-                            >
-                                <div className="relative">
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-green-500/30 to-emerald-500/30 rounded-full blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
-                                    <Image 
-                                        src={process.env.NEXT_PUBLIC_AVATAR_URL || ""} 
-                                        alt="MaxC" 
-                                        width={32} 
-                                        height={32} 
-                                        className="relative rounded-full ring-2 ring-white/50 dark:ring-black/50 shadow-lg group-hover:scale-105 transition-transform duration-200" 
-                                    />
-                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full border-2 border-background shadow-sm">
-                                        <div className="w-full h-full bg-gradient-to-r from-green-400 to-emerald-400 rounded-full animate-pulse"></div>
-                                    </div>
+                        <Button 
+                            variant="ghost" 
+                            className="relative focus-visible:ring-0 hover:bg-white/5 transition-all duration-200 pl-2 pr-3 h-auto py-1.5 gap-2 group border border-white/10 hover:border-white/20 rounded-full bg-[rgba(31,31,31,0.62)]"
+                        >
+                            <div className="relative">
+                                <Image 
+                                    src={process.env.NEXT_PUBLIC_AVATAR_URL || ""} 
+                                    alt="Project" 
+                                    width={22} 
+                                    height={22} 
+                                    className="relative rounded-full ring-1 ring-white/10" 
+                                />
+                                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-[1.5px] border-black">
+                                    <div className="w-full h-full bg-emerald-400 rounded-full animate-pulse"></div>
                                 </div>
-                                <div className="flex flex-col items-start">
-                                    <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent leading-tight">
-                                        {project.name}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground font-medium">
-                                        Active Project
-                                    </span>
-                                </div>
-                                <ChevronDownIcon className="w-4 h-4 text-muted-foreground group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-all duration-200 group-hover:rotate-180" />
-                            </Button>
-                        </div>
+                            </div>
+                            <div className="flex flex-col items-start">
+                                <span className="text-xs font-semibold text-white leading-tight line-clamp-1 max-w-[120px]">
+                                    {project.name}
+                                </span>
+                            </div>
+                            <ChevronDownIcon className="w-3 h-3 text-gray-500 group-hover:text-white transition-all duration-200" />
+                        </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent 
                         side="bottom" 
                         align="start" 
-                        className="w-72 p-3 bg-card/95 backdrop-blur-md border-border/50 shadow-xl rounded-xl"
-                        sideOffset={12}
+                        className="w-56 p-1.5 bg-[rgba(15,15,20,0.95)] backdrop-blur-xl border-white/10 shadow-2xl rounded-lg text-gray-200"
+                        sideOffset={6}
                     >
                         {/* Project Info Header */}
-                        <div className="px-3 py-4 border-b border-border/50 mb-3 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-lg">
-                            <div className="flex items-center gap-4">
+                        <div className="px-2 py-2 mb-1 bg-white/5 rounded-md border border-white/5">
+                            <div className="flex items-center gap-2">
                                 <div className="relative">
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-green-500/30 to-emerald-500/30 rounded-full blur opacity-40"></div>
                                     <Image 
                                         src={process.env.NEXT_PUBLIC_AVATAR_URL || ""} 
-                                        alt="MaxC" 
-                                        width={36} 
-                                        height={36} 
-                                        className="relative rounded-full ring-2 ring-white/50 dark:ring-black/50 shadow-lg" 
+                                        alt="Project" 
+                                        width={28} 
+                                        height={28} 
+                                        className="relative rounded-full ring-1 ring-white/10" 
                                     />
-                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full border-2 border-background shadow-sm">
-                                        <div className="w-full h-full bg-gradient-to-r from-green-400 to-emerald-400 rounded-full animate-pulse"></div>
+                                    <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-[1.5px] border-[#111]">
+                                        <div className="w-full h-full bg-emerald-400 rounded-full animate-pulse"></div>
                                     </div>
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{project.name}</span>
-                                    <span className="text-xs text-muted-foreground font-medium">AI Website Builder Project</span>
+                                <div className="flex flex-col flex-1 min-w-0">
+                                    <span className="text-xs font-semibold text-white truncate">{project.name}</span>
+                                    <div className="flex items-center gap-1 mt-0.5">
+                                        <SparklesIcon className="w-2.5 h-2.5 text-[#1f3dbc]" />
+                                        <span className="text-[10px] text-gray-400">AI Website Builder</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Navigation */}
                         <DropdownMenuItem asChild>
-                            <Link href="/" className="flex items-center gap-3 px-3 py-3 cursor-pointer rounded-lg hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 dark:hover:from-blue-950/30 dark:hover:to-purple-950/30 transition-all duration-200 group">
-                                <div className="p-1.5 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-800/50 rounded-md group-hover:scale-110 transition-transform">
-                                    <HomeIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                            <Link href="/" className="flex items-center gap-2 px-2 py-1.5 cursor-pointer rounded-md hover:bg-white/5 transition-all duration-200 group focus:bg-white/5 focus:text-white">
+                                <div className="p-1 bg-[#1f3dbc]/10 rounded group-hover:bg-[#1f3dbc]/20 transition-colors">
+                                    <HomeIcon className="w-3 h-3 text-[#1f3dbc]" />
                                 </div>
-                                <span className="font-medium">Go to Dashboard</span>
+                                <span className="text-xs font-medium text-gray-300 group-hover:text-white">Dashboard</span>
                             </Link>
                         </DropdownMenuItem>
                         
-                        <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 cursor-pointer rounded-lg hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 dark:hover:from-purple-950/30 dark:hover:to-pink-950/30 transition-all duration-200 group">
-                            <div className="p-1.5 bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900/50 dark:to-purple-800/50 rounded-md group-hover:scale-110 transition-transform">
-                                <FolderIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        <DropdownMenuItem className="flex items-center gap-2 px-2 py-1.5 cursor-pointer rounded-md hover:bg-white/5 transition-all duration-200 group focus:bg-white/5 focus:text-white">
+                            <div className="p-1 bg-purple-500/10 rounded group-hover:bg-purple-500/20 transition-colors">
+                                <FolderIcon className="w-3 h-3 text-purple-400" />
                             </div>
-                            <span className="font-medium">Project Settings</span>
+                            <span className="text-xs font-medium text-gray-300 group-hover:text-white">Project Files</span>
                         </DropdownMenuItem>
                         
-                        <DropdownMenuSeparator className="my-3 bg-border/50" />
+                        <DropdownMenuSeparator className="my-1 bg-white/10" />
                         
-                        <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 cursor-pointer rounded-lg hover:bg-gradient-to-r hover:from-emerald-50/50 hover:to-teal-50/50 dark:hover:from-emerald-950/30 dark:hover:to-teal-950/30 transition-all duration-200 group">
-                            <div className="p-1.5 bg-gradient-to-r from-emerald-100 to-teal-200 dark:from-emerald-900/50 dark:to-teal-800/50 rounded-md group-hover:scale-110 transition-transform">
-                                <SettingsIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <DropdownMenuItem className="flex items-center gap-2 px-2 py-1.5 cursor-pointer rounded-md hover:bg-white/5 transition-all duration-200 group focus:bg-white/5 focus:text-white">
+                            <div className="p-1 bg-gray-500/10 rounded group-hover:bg-gray-500/20 transition-colors">
+                                <SettingsIcon className="w-3 h-3 text-gray-400" />
                             </div>
-                            <span className="font-medium">Settings</span>
+                            <span className="text-xs font-medium text-gray-300 group-hover:text-white">Settings</span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            
-           
         </header>
     )
 }
