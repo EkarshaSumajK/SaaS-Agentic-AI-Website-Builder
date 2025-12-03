@@ -108,7 +108,7 @@ export default function AboutPage() {
                   We harness the power of advanced AI models to understand your vision and generate production-quality code that follows modern best practices. No more wrestling with boilerplate code or design decisions.
                 </p>
                 <p>
-                  Whether you're prototyping a SaaS idea, building a landing page, or creating a complex dashboard, Lumina streamlines the development process so you can focus on what truly matters: bringing your vision to life.
+                  Whether you&apos;re prototyping a SaaS idea, building a landing page, or creating a complex dashboard, Lumina streamlines the development process so you can focus on what truly matters: bringing your vision to life.
                 </p>
               </div>
             </div>

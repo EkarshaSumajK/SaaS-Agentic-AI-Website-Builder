@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import Image from "next/image";
 
 const AnimatedNavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
   const defaultTextColor = 'text-gray-300';
@@ -50,10 +51,12 @@ export function Navbar() {
 
   const logoElement = (
     <Link href="/" className="flex items-center gap-2 cursor-pointer">
-      <img 
+      <Image 
         src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA3Fm3ZqSqSdlph2paINM75OWLtKgBh5mM4w&s" 
         alt="Lumina Logo" 
-        className="w-8 h-8 rounded-full object-cover"
+        width={32}
+        height={32}
+        className="rounded-full object-cover"
       />
       <span className="text-gray-200 font-semibold text-sm tracking-tight">Lumina</span>
     </Link>

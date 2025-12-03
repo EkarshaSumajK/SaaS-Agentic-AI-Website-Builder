@@ -32,12 +32,13 @@ export const ProjectHeader = ({projectID}:Props) => {
                     </Button>
                 </Link>
 
-                {/* Logo/Home Link - matching navbar style */}
                 <Link href="/" className="flex items-center gap-1.5 group">
-                    <img 
+                    <Image 
                         src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA3Fm3ZqSqSdlph2paINM75OWLtKgBh5mM4w&s" 
                         alt="Lumina Logo" 
-                        className="w-5 h-5 rounded-full object-cover ring-1 ring-white/10 group-hover:ring-white/20 transition-all"
+                        width={20}
+                        height={20}
+                        className="rounded-full object-cover ring-1 ring-white/10 group-hover:ring-white/20 transition-all"
                     />
                     <span className="text-gray-200 font-semibold text-xs tracking-tight group-hover:text-white transition-colors">
                         Lumina

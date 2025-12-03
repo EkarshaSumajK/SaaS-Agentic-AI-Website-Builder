@@ -47,7 +47,7 @@ export class GlobalErrorBoundary extends Component<Props, State> {
               </div>
               <CardTitle>Something went wrong</CardTitle>
               <CardDescription>
-                We're sorry, but something unexpected happened. Please refresh the page to try again.
+                We&apos;re sorry, but something unexpected happened. Please refresh the page to try again.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
