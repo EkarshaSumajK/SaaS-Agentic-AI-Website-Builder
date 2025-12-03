@@ -32,13 +32,21 @@ const UserMessageCard = ({content}:UserMessageCardProps) => {
                 </div>
                 
                 <div className="relative flex-shrink-0">
-                    <Image 
-                        src={user?.imageUrl || ""} 
-                        alt="User" 
-                        width={24} 
-                        height={24} 
-                        className="relative rounded-full ring-1 ring-white/10" 
-                    />
+                    {user?.imageUrl ? (
+                        <Image 
+                            src={user.imageUrl} 
+                            alt="User" 
+                            width={24} 
+                            height={24} 
+                            className="relative rounded-full ring-1 ring-white/10" 
+                        />
+                    ) : (
+                        <div className="w-6 h-6 rounded-full ring-1 ring-white/10 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                            <span className="text-[10px] font-semibold text-white">
+                                {user?.firstName?.charAt(0) || user?.username?.charAt(0) || "U"}
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

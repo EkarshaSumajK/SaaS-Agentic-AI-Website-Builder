@@ -4,6 +4,9 @@ import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { z } from "zod";
 import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
+import { rateLimiter, RATE_LIMITS } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
+
 export const projectRouter = createTRPCRouter({
     getOne: protectedProcedure.input(z.object({
         id:z.string().min(1,{message:"ID is required"}),
@@ -25,6 +28,8 @@ export const projectRouter = createTRPCRouter({
             orderBy:{
                 updatedAt:"desc"
             },
+            // Add pagination for better performance
+            take: 50,
         })
         return projects
     }),
@@ -34,6 +39,30 @@ export const projectRouter = createTRPCRouter({
         })
         )
         .mutation(async({input,ctx})=>{
+            // Apply rate limiting
+            const rateLimitResult = rateLimiter.check(
+                ctx.auth.userId,
+                RATE_LIMITS.PROJECT_CREATE
+            );
+
+            if (!rateLimitResult.success) {
+                logger.warn("Rate limit exceeded for project creation", {
+                    userId: ctx.auth.userId,
+                    limit: rateLimitResult.limit,
+                    reset: new Date(rateLimitResult.reset).toISOString(),
+                });
+                
+                throw new TRPCError({
+                    code: "TOO_MANY_REQUESTS",
+                    message: `Rate limit exceeded. You can create ${rateLimitResult.limit} projects per hour. Please try again later.`,
+                });
+            }
+
+            logger.info("Creating project", {
+                userId: ctx.auth.userId,
+                remaining: rateLimitResult.remaining,
+            });
+
             const createdProject = await prisma.project.create({
                 data:{
                     name:generateSlug(2,{format:"kebab"}),
@@ -55,6 +84,12 @@ export const projectRouter = createTRPCRouter({
                     projectId:createdProject.id,
                 }
             })
+            
+            logger.info("Project created and agent triggered", {
+                projectId: createdProject.id,
+                userId: ctx.auth.userId,
+            });
+            
             return createdProject   
         })
 

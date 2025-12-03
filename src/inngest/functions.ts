@@ -5,6 +5,7 @@ import { getSandboxUrl, lastAssistantMessageContent } from "./utils";
 import { z } from "zod";
 import { PROMPT, RESPONSE_PROMPT, FRAGMENT_TITLE_PROMPT, parseStatusTags, extractTaskSummary, ProgressStatus } from "@/prompt";
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 interface AgentState{
   summary:string
@@ -18,9 +19,16 @@ export const codeAgent = inngest.createFunction(
   { event: "code-agent/run" },
   async ({ event, step }) => {
     const sandboxId = await step.run("get-sandbox-id",async()=>{
-      const sandbox = await Sandbox.create('ai-saas-website-builderx')
-      await sandbox.setTimeout(Number(process.env.SANDBOX_TIMEOUT) || 60000 * 10)
-      return sandbox.sandboxId
+      try {
+        const sandbox = await Sandbox.create('ai-saas-website-builderx')
+        const timeout = Number(process.env.SANDBOX_TIMEOUT) || 60000 * 10
+        await sandbox.setTimeout(timeout)
+        logger.info("Sandbox created", { sandboxId: sandbox.sandboxId, timeout })
+        return sandbox.sandboxId
+      } catch (error) {
+        logger.error("Failed to create sandbox", error)
+        throw new Error("Failed to initialize code environment")
+      }
     })
 
     const previousMessages = await step.run("get-previous-messages",async()=>{
@@ -86,8 +94,13 @@ export const codeAgent = inngest.createFunction(
                   return result.stdout
                 }
                 catch(e){
-                  console.error(`Command failed: ${e} \n stderr: ${buffers.stderr} \n stdout: ${buffers.stdout}`)
-                  return `Command failed: ${e} \n stderr: ${buffers.stderr} \n stdout: ${buffers.stdout}`
+                  const errorMsg = `Command failed: ${e} \n stderr: ${buffers.stderr} \n stdout: ${buffers.stdout}`
+                  logger.error("Terminal command failed", e as Error, {
+                    command,
+                    stdout: buffers.stdout,
+                    stderr: buffers.stderr,
+                  })
+                  return errorMsg
                 }
               })
             }
@@ -113,7 +126,10 @@ export const codeAgent = inngest.createFunction(
                   return updatedFiles
                 }
                 catch(e){
-                  console.error(`Failed to create or update files: ${e}`)
+                  logger.error("Failed to create or update files", e as Error, {
+                    fileCount: files.length,
+                    filePaths: files.map(f => f.path),
+                  })
                   return `Failed to create or update files: ${e}`
                 }
               })
@@ -142,7 +158,10 @@ export const codeAgent = inngest.createFunction(
                   return JSON.stringify(contents)
                 }
                 catch(e){
-                  console.error(`Failed to read file: ${e}`)
+                  logger.error("Failed to read files", e as Error, {
+                    fileCount: files.length,
+                    filePaths: files,
+                  })
                   return `Failed to read file: ${e}`
                 }
               })
@@ -167,7 +186,7 @@ export const codeAgent = inngest.createFunction(
                   // Update current status to the latest one
                   const latestStatus = newStatuses[newStatuses.length - 1]
                   network.state.data.currentStatus = `${latestStatus.type}: ${latestStatus.message}`
-                  console.log(`[Lumina AI] Status: ${latestStatus.type} - ${latestStatus.message}`)
+                  logger.agent(`Status: ${latestStatus.type} - ${latestStatus.message}`)
                 }
                 
                 // Check for task summary (completion)
@@ -175,12 +194,14 @@ export const codeAgent = inngest.createFunction(
                 if(taskSummary){
                   network.state.data.summary = lastAssistantMessage
                   network.state.data.currentStatus = "complete"
-                  console.log(`[Lumina AI] Task completed with summary`)
+                  logger.agent("Task completed with summary")
                 }
               }
               return result
             } catch (error) {
-              console.warn("Error processing response:", error)
+              logger.warn("Error processing AI response", {
+                error: error instanceof Error ? error.message : String(error)
+              })
               return result
             }
           },

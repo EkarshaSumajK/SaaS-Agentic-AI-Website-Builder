@@ -9,7 +9,7 @@ import { useUser } from "@clerk/nextjs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Globe, Lock, LayoutTemplate } from "lucide-react";
+import { Search, Globe } from "lucide-react";
 
 
 

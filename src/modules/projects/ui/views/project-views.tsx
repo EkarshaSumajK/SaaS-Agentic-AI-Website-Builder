@@ -39,12 +39,12 @@ export const ProjectViews = ({ projectID }: Props) => {
             </div>
 
             {/* Main content */}
-            <div className="relative h-full w-full p-4">
+            <div className="relative h-full w-full ">
                 <div className="h-full w-full rounded-2xl bg-gradient-to-br from-white/5 via-white/[0.02] to-black/20 p-[1px] overflow-hidden">
                     <div className="h-full w-full bg-[rgba(10,10,12,0.75)] backdrop-blur-xl rounded-2xl overflow-hidden">
                         <ResizablePanelGroup direction="horizontal" style={{ height: '100%' }}>
                             {/* Left Panel - Chat */}
-                            <ResizablePanel defaultSize={35} minSize={25}>
+                            <ResizablePanel defaultSize={25} minSize={25}>
                                 <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                                     <div className="flex-shrink-0">
                                         <Suspense fallback={<LoadingCard>Loading Project...</LoadingCard>}>
@@ -69,7 +69,7 @@ export const ProjectViews = ({ projectID }: Props) => {
                             />
 
                             {/* Right Panel - Preview/Code */}
-                            <ResizablePanel defaultSize={65} minSize={50}>
+                            <ResizablePanel defaultSize={50} minSize={50}>
                                 <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                                     <Tabs 
                                         value={activeTab} 
