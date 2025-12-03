@@ -78,7 +78,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: https: blob:",
               "font-src 'self' https://fonts.gstatic.com",
-              "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://api.e2b.dev wss:",
+              "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://clerk-telemetry.com https://api.e2b.dev wss:",
               "frame-src 'self' https://*.clerk.accounts.dev https://*.e2b.dev https://*.e2b.app",
               "worker-src 'self' blob:",
               "object-src 'none'",
